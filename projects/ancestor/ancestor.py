@@ -1,10 +1,96 @@
-def earliest_ancestor(ancestors, starting_node):
-    ad_list = {}
-    for parent, child in ancestors:
-        if child not in ad_list:
-            ad_list[child] = {parent}
+# plan
+## graphs problem solving
+## translate problem, nodes people
+# edges when child has a parent
+
+# build or graph? or just define get_neighbors?
+
+## choose algorithm - dfs (we want to build thing)
+
+## how would we know what's faster?
+
+# import deque from collections
+
+class Graph:
+    def __init__(self):
+        self.vertices = {}
+
+    def add_vertex(self, vertex):
+        if vertex not in self.vertices:
+            self.vertices[vertex] = set()
+
+    def add_edge(self, v1, v2):
+        self.vertices[v1].add(v2)
+
+    def get_neighbors(self, vertex):
+        return self.vertices[vertex]
+
+class Stack():
+    def __init__(self):
+        self.stack = []
+    def push(self, value):
+        self.stack.append(value)
+    def pop(self):
+        if self.size() > 0:
+            return self.stack.pop()
         else:
-            ad_list[child] = ad_list[child].union({parent})
+            return None
+    def size(self):
+        return len(self.stack)
+
+
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return len(self.queue)
+
+graph = Graph()
+
+def build_graph(ancestors):
+    for parent, child in ancestors:
+
+        graph.add_vertex(parent)
+        graph.add_vertex(child)
+        graph.add_edge(parent, child)
+
+    return graph
+
+def earliest_ancestor2(ancestors, starting_node):
+    graph = build_graph(ancestors)
+
+    s = Stack()
+    visited = set()
+    s.push([starting_node])
+    longest_path = []
+    while s.size() > 0:
+        path = s.pop()
+        current_node = path[-1]
+        if len(path) > len(longest_path):
+            longest_path = path
+        if current_node not in visited:
+            visited.add(current_node)
+            parents = graph.get_neighbors(current_node)
+            for parent in parents:
+                new_path = path + [parent]
+                s.push(new_path)
+
+    return longest_path[-1]
+
+def earliest_ancestor(ancestors, starting_node):
+    adjacency_list = {}
+    for parent, child in ancestors:
+        if child not in adjacency_list:
+            adjacency_list[child] = {parent}
+        else:
+            adjacency_list[child] = adjacency_list[child].union({parent})
 
     s = [starting_node]
     preds = {}
@@ -17,9 +103,9 @@ def earliest_ancestor(ancestors, starting_node):
             new_gen = True
         else:
             new_gen = False
-        # ancestors with no known predecessors will not be in list
-        if earliest in ad_list:
-            for ancestor in ad_list[earliest]:
+
+        if earliest in adjacency_list:
+            for ancestor in adjacency_list[earliest]:
                 s.append(ancestor)
         else:
             preds[generations].append(earliest)
