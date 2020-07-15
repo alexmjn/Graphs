@@ -70,11 +70,15 @@ def earliest_ancestor2(ancestors, starting_node):
     visited = set()
     s.push([starting_node])
     longest_path = []
+    aged_one = -1
+
     while s.size() > 0:
         path = s.pop()
         current_node = path[-1]
-        if len(path) > len(longest_path):
+        if (len(path) > len(longest_path))) or (len(path) == len(longest_path) and current_node < aged_one):
             longest_path = path
+            aged_one = longest_path[-1]
+
         if current_node not in visited:
             visited.add(current_node)
             parents = graph.get_neighbors(current_node)
